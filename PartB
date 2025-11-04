@@ -1,0 +1,95 @@
+// Student.java
+package com.example.hibernateapp;
+
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "student")
+public class Student {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private String name;
+    private String department;
+    private int marks;
+
+    // Getters and Setters
+}
+
+<!-- hibernate.cfg.xml -->
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 5.3//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-5.3.dtd">
+<hibernate-configuration>
+  <session-factory>
+    <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+    <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/testdb</property>
+    <property name="hibernate.connection.username">root</property>
+    <property name="hibernate.connection.password">password</property>
+    <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+    <property name="hibernate.hbm2ddl.auto">update</property>
+    <mapping class="com.example.hibernateapp.Student"/>
+  </session-factory>
+
+// StudentDAO.java
+package com.example.hibernateapp;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class StudentDAO {
+    private SessionFactory factory = new Configuration().configure().buildSessionFactory();
+
+    public void createStudent(Student s) {
+        Session session = factory.openSession();
+        Transaction tx = session.beginTransaction();
+        session.save(s);
+        tx.commit();
+        session.close();
+    }
+
+    public Student readStudent(int id) {
+        Session session = factory.openSession();
+        Student s = session.get(Student.class, id);
+        session.close();
+        return s;
+    }
+
+    public void updateStudent(Student s) {
+        Session session = factory.openSession();
+        Transaction tx = session.beginTransaction();
+        session.update(s);
+        tx.commit();
+        session.close();
+    }
+
+    public void deleteStudent(int id) {
+        Session session = factory.openSession();
+        Transaction tx = session.beginTransaction();
+        Student s = session.get(Student.class, id);
+        if (s != null) session.delete(s);
+        tx.commit();
+        session.close();
+    }
+}
+
+
+// MainApp.java
+package com.example.hibernateapp;
+
+public class MainApp {
+    public static void main(String[] args) {
+        StudentDAO dao = new StudentDAO();
+
+        Student s = new Student();
+        s.setName("Riya");
+        s.setDepartment("CSE");
+        s.setMarks(89);
+        dao.createStudent(s);
+
+        System.out.println("Student Added Successfully!");
+    }
+}
+
+</hibernate-configuration>
